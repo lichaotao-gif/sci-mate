@@ -1,0 +1,12 @@
+export type Paper = {id:number; title:string; topic:string; venue:string; year:string; summary:string; method:string; limitation:string; url:string; saved:boolean; read:boolean};
+export const initialPapers:Paper[] = [
+{id:1,title:"Let's Verify Step by Step",topic:"过程监督",venue:"ICLR",year:"2024",summary:"比较过程监督与结果监督，为推理步骤的验证提供研究入口。",method:"过程奖励模型",limitation:"需进一步核查任务范围与标注成本。",url:"https://arxiv.org/abs/2305.20050",saved:true,read:false},
+{id:2,title:"Self-Consistency Improves Chain of Thought Reasoning in Language Models",topic:"多路径推理",venue:"ICLR",year:"2023",summary:"从多条推理路径的答案一致性出发，研究推理结果的可靠性。",method:"多路径采样与答案聚合",limitation:"需比较采样预算与任务差异。",url:"https://arxiv.org/abs/2203.11171",saved:true,read:true},
+{id:3,title:"Tree of Thoughts: Deliberate Problem Solving with Large Language Models",topic:"搜索与规划",venue:"NeurIPS",year:"2023",summary:"将推理组织为可探索的思维树，研究搜索与规划的作用。",method:"思维树搜索",limitation:"需比较搜索成本及评价机制。",url:"https://arxiv.org/abs/2305.10601",saved:true,read:false},
+{id:4,title:"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",topic:"推理机制",venue:"NeurIPS",year:"2022",summary:"研究通过中间推理步骤引导语言模型解决复杂任务。",method:"思维链提示",limitation:"步骤流畅并不意味着每一步均正确。",url:"https://arxiv.org/abs/2201.11903",saved:true,read:true},
+{id:5,title:"Self-Refine: Iterative Refinement with Self-Feedback",topic:"自我纠错",venue:"NeurIPS",year:"2023",summary:"围绕生成、反馈和修改的循环探索输出改进。",method:"自反馈迭代",limitation:"需区分任务类型与反馈有效性。",url:"https://arxiv.org/abs/2303.17651",saved:false,read:false},
+{id:6,title:"Reflexion: Language Agents with Verbal Reinforcement Learning",topic:"自我纠错",venue:"NeurIPS",year:"2023",summary:"利用反馈与语言反思支持后续尝试。",method:"语言反思与记忆",limitation:"需核查反馈来源与环境假设。",url:"https://arxiv.org/abs/2303.11366",saved:false,read:false}
+];
+export type Task = {id:number;title:string;category:string;done:boolean;paperId?:number};
+export const initialTasks:Task[]=[{id:1,title:"比较三种推理增强方法",category:"证据对比",done:false},{id:2,title:"精读过程监督的关键论文",category:"文献精读",done:false,paperId:1},{id:3,title:"核查自我纠错的反馈条件",category:"证据核查",done:false},{id:4,title:"明确研究问题与检索范围",category:"研究准备",done:true}];
+export const discoveries=[{id:1,type:"研究进展",title:"过程监督：从答案正确到步骤可靠",description:"与你的「推理可验证性」问题相关。",impact:"建议将过程监督与结果监督分开比较，核查验证器的训练数据和评价条件。",paperId:1,tag:"高度相关"},{id:2,type:"待核查",title:"自我纠错的有效条件仍需区分",description:"建议比较有无外部反馈的实验设置。",impact:"自我反馈、环境反馈和人工反馈不应归为同一实验条件，先整理反馈来源再判断有效性。",paperId:5,tag:"影响研究判断"},{id:3,type:"研究资源",title:"思维树方法：补充搜索与规划路线",description:"为你的方法对比增加一个搜索视角。",impact:"将搜索预算、评价器与停止条件加入比较维度，准备后续复现材料。",paperId:3,tag:"方法补充"}];
