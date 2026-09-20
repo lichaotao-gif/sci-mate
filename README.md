@@ -21,7 +21,7 @@ A Chinese-language, click-first research workspace prototype.
 - 构建产物目录：`./dist`
 - 部署路径：`/sci-mate`
 
-腾讯构建命令会自动为 Next.js 静态资源、图片和通道图标添加 `/sci-mate` 前缀。本地开发和 `npm run build:vinext` 仍使用根路径，不受腾讯部署路径影响。
+腾讯构建命令会为 Next.js 静态资源、图片和通道图标生成相对路径，因此同一份产物既能通过独立应用域名根路径访问，也能通过静态托管的 `/sci-mate/` 子目录访问。本地开发和 `npm run build:vinext` 仍使用根路径。
 
 `npm run build` 会先生成 Next.js 静态导出，再整理为 `dist/index.html` 和相关静态资源，兼容 CloudBase 的 `tcb hosting deploy ./dist /sci-mate` 部署命令。若需要原来的 Vinext/Cloudflare 构建，请运行 `npm run build:vinext`。
 
