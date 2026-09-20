@@ -9,6 +9,20 @@ A Chinese-language, click-first research workspace prototype.
 - `npm run build`
 - `npx tsc --noEmit`
 
+## 腾讯云静态网站托管
+
+仓库提供独立的静态导出命令，构建后会生成可直接托管的 `out` 目录。
+
+- 项目框架：`其他`（也可以选择 Next.js 后手动覆盖下列配置）
+- Node.js：`22.17.1` 或控制台可选的更新 22.x 版本
+- 目标目录：`./`
+- 安装命令：`npm ci`
+- 构建命令：`npm run build:tencent`
+- 构建产物目录：`./out`
+- 部署路径：`/`
+
+当前资源以网站根路径引用，因此不要把部署路径设为 `/sci-mate`。如需绑定独立域名，仍保持部署路径为 `/` 即可。
+
 ## Implemented journeys
 
 - Project overview and creation with empty-state onboarding
