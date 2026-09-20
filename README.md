@@ -17,11 +17,13 @@ A Chinese-language, click-first research workspace prototype.
 - Node.js：`22.17.1` 或控制台可选的更新 22.x 版本
 - 目标目录：`./`
 - 安装命令：`npm ci`
-- 构建命令：`npm run build:tencent`
-- 构建产物目录：`./out`
+- 构建命令：`npm run build`（`npm run build:tencent` 也可以）
+- 构建产物目录：`./dist`
 - 部署路径：`/sci-mate`
 
-腾讯构建命令会自动为 Next.js 静态资源、图片和通道图标添加 `/sci-mate` 前缀。本地开发与普通构建仍使用根路径，不受腾讯部署路径影响。
+腾讯构建命令会自动为 Next.js 静态资源、图片和通道图标添加 `/sci-mate` 前缀。本地开发和 `npm run build:vinext` 仍使用根路径，不受腾讯部署路径影响。
+
+`npm run build` 会先生成 Next.js 静态导出，再整理为 `dist/index.html` 和相关静态资源，兼容 CloudBase 的 `tcb hosting deploy ./dist /sci-mate` 部署命令。若需要原来的 Vinext/Cloudflare 构建，请运行 `npm run build:vinext`。
 
 ## Implemented journeys
 
