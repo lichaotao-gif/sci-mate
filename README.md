@@ -19,9 +19,9 @@ A Chinese-language, click-first research workspace prototype.
 - 安装命令：`npm ci`
 - 构建命令：`npm run build:tencent`
 - 构建产物目录：`./out`
-- 部署路径：`/`
+- 部署路径：`/sci-mate`
 
-当前资源以网站根路径引用，因此不要把部署路径设为 `/sci-mate`。如需绑定独立域名，仍保持部署路径为 `/` 即可。
+腾讯构建命令会自动为 Next.js 静态资源、图片和通道图标添加 `/sci-mate` 前缀。本地开发与普通构建仍使用根路径，不受腾讯部署路径影响。
 
 ## Implemented journeys
 

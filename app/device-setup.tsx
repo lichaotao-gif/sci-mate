@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Box, Check, ChevronRight, Cpu, KeyRound, LockKeyhole, MessageCircle, Phone, Radio, ScanLine, ShieldCheck, Wifi, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { assetPath } from "@/lib/asset-path";
 
 export type SetupStage = "auth" | "device" | "channels" | "complete" | null;
 
@@ -16,10 +17,10 @@ type Channel = {
 };
 
 const channels: Channel[] = [
-  { id:"wechat", name:"微信", description:"接收研究进展、雷达热点，并可直接向科研 Agent 提问。", logo:"/channels/wechat.svg", recommended:true },
-  { id:"feishu", name:"飞书", description:"将报告、任务和提醒推送到个人或科研协作群。", logo:"/channels/feishu.svg", recommended:true },
-  { id:"qq", name:"QQ", description:"通过私聊或群聊查看任务状态并继续研究对话。", logo:"/channels/qq.svg" },
-  { id:"wecom", name:"企业微信", description:"面向实验室或团队同步研究任务与阶段成果。", logo:"/channels/wecom.svg" },
+  { id:"wechat", name:"微信", description:"接收研究进展、雷达热点，并可直接向科研 Agent 提问。", logo:assetPath("/channels/wechat.svg"), recommended:true },
+  { id:"feishu", name:"飞书", description:"将报告、任务和提醒推送到个人或科研协作群。", logo:assetPath("/channels/feishu.svg"), recommended:true },
+  { id:"qq", name:"QQ", description:"通过私聊或群聊查看任务状态并继续研究对话。", logo:assetPath("/channels/qq.svg") },
+  { id:"wecom", name:"企业微信", description:"面向实验室或团队同步研究任务与阶段成果。", logo:assetPath("/channels/wecom.svg") },
 ];
 
 const DEVICE_PATTERN=/^SM-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
@@ -84,8 +85,8 @@ export function SCIMateBoxSetup({stage,onStageChange,onFinish,authenticated,acco
 
   return <div className={`scimate-box-setup ${stage==="auth"?"auth-layout":"modal-layout"}`} role="dialog" aria-modal="true" aria-labelledby="scimate-box-setup-title">
     <div className="setup-ambient setup-ambient-one"/><div className="setup-ambient setup-ambient-two"/>
-    {stage==="auth"&&<aside className="setup-story">
-      <div className="setup-brand"><img src="/scimate-brand-mark.png" alt=""/><span>SCI<strong>Mate</strong></span></div>
+    {stage==="auth"&&<aside className="setup-story" style={{"--login-bg":`url("${assetPath("/scimate-login-research-bg.png")}")`} as React.CSSProperties}>
+      <div className="setup-brand"><img src={assetPath("/scimate-brand-mark.png")} alt=""/><span>SCI<strong>Mate</strong></span></div>
       <div className="setup-story-copy"><span className="setup-kicker"><Radio size={15}/>SCIMATE BOX · RESEARCH NODE</span><h1>让科研 Agent<br/>真正持续运行</h1><p>SCIMate 盒子承载本地知识、自动任务与 24 小时科研雷达。绑定后，你可以从网页或常用通信工具随时调用它。</p></div>
       <div className="setup-security"><ShieldCheck size={17}/><span><strong>数据由盒子本地处理</strong><small>通道凭证保存在设备中，可随时解除绑定</small></span></div>
     </aside>}
