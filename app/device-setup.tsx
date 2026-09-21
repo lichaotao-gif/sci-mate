@@ -80,7 +80,6 @@ export function SCIMateBoxSetup({stage,onStageChange,onFinish,authenticated,acco
     onStageChange("complete");
   };
   const finishSetup=()=>{onStageChange(null);onFinish?.()};
-  const currentStep=stage==="auth"?1:stage==="device"?2:stage==="channels"?3:4;
   const maskedPhone=phoneValid?`${phone.slice(0,3)} **** ${phone.slice(-4)}`:"手机号账户";
 
   return <div className={`scimate-box-setup ${stage==="auth"?"auth-layout":"modal-layout"}`} role="dialog" aria-modal="true" aria-labelledby="scimate-box-setup-title">
@@ -92,10 +91,7 @@ export function SCIMateBoxSetup({stage,onStageChange,onFinish,authenticated,acco
     </aside>}
 
     <main className="setup-panel">
-      {stage!=="auth"&&<header className="setup-panel-header">
-        <div className="setup-progress" aria-label={`设置进度：第 ${currentStep} 步，共 4 步`}>{["登录注册","绑定设备","连接通道","开始研究"].map((label,index)=>{const step=index+1;return <span className={step<currentStep?"done":step===currentStep?"current":""} key={label}><i>{step<currentStep?<Check size={12}/>:step}</i><em>{label}</em></span>})}</div>
-        {authenticated&&<button className="setup-close" aria-label="关闭设备与通道设置" onClick={()=>onStageChange(null)}><X size={20}/></button>}
-      </header>}
+      {stage!=="auth"&&authenticated&&<button className="setup-close setup-close-floating" aria-label="关闭设备与通道设置" onClick={()=>onStageChange(null)}><X size={20}/></button>}
 
       {stage==="auth"&&<section className="setup-content auth-step">
         <div className="setup-heading"><span className="setup-step-icon auth-icon"><Phone size={23}/></span><div><h2 id="scimate-box-setup-title">手机号登录 / 注册</h2><p>首次登录将自动创建 SCIMate 账户，已有账户会直接进入原有研究空间。</p></div></div>
@@ -108,7 +104,7 @@ export function SCIMateBoxSetup({stage,onStageChange,onFinish,authenticated,acco
       </section>}
 
       {stage==="device"&&<section className="setup-content device-step">
-        <div className="setup-heading"><span className="setup-step-icon"><Box size={23}/></span><div><small>第 2 步，共 4 步</small><h2 id="scimate-box-setup-title">{deviceBound?"SCIMate 盒子已连接":"绑定你的 SCIMate 盒子"}</h2><p>{deviceBound?"设备在线并正在承载科研 Agent。":"现在绑定可开启本地知识、自动任务和 24 小时科研雷达，也可以稍后处理。"}</p></div></div>
+        <div className="setup-heading"><span className="setup-step-icon"><Box size={23}/></span><div><small>设备连接</small><h2 id="scimate-box-setup-title">{deviceBound?"SCIMate 盒子已连接":"绑定你的 SCIMate 盒子"}</h2><p>{deviceBound?"设备在线并正在承载科研 Agent。":"绑定后开启本地知识、自动任务和 24 小时科研雷达，也可以稍后处理。"}</p></div></div>
         {deviceBound?<div className="bound-device-card"><span className="bound-device-icon"><Cpu size={28}/><i/></span><div><small>当前设备</small><strong>{deviceName}</strong><p><span><Wifi size={13}/>在线</span><span>设备码 SM-7A21-9K3M</span><span>本地存储正常</span></p></div><span className="device-status-tag"><Check size={13}/>已绑定</span></div>:<form className="device-bind-form" onSubmit={event=>{event.preventDefault();bindDevice()}}>
           <div className="device-discovery"><span><Wifi size={18}/><span><strong>同一网络下可自动发现设备</strong><small>确保 SCIMate 盒子已开机并连接当前网络</small></span></span><button type="button" onClick={discoverDevice}><ScanLine size={16}/>自动发现</button></div>
           <label><span>设备码</span><div className="setup-input-row"><Input value={deviceCode} onChange={event=>setDeviceCode(event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g,"").slice(0,12))} placeholder="SM-XXXX-XXXX" maxLength={12} aria-invalid={deviceCode.length>0&&!deviceCodeValid}/>{deviceCodeValid&&<Check className="input-valid" size={17}/>}</div><small className={deviceCode.length>0&&!deviceCodeValid?"field-error":""}>{deviceCode.length>0&&!deviceCodeValid?"设备码格式应为 SM-XXXX-XXXX":"设备码位于盒子底部铭牌或包装卡片"}</small></label>
@@ -121,7 +117,7 @@ export function SCIMateBoxSetup({stage,onStageChange,onFinish,authenticated,acco
 
       {stage==="channels"&&<section className="setup-content channel-step">
         <button className="setup-back" onClick={()=>configuringChannel?setConfiguringChannel(null):onStageChange("device")}><ArrowLeft size={16}/>{configuringChannel?"返回通道列表":"设备信息"}</button>
-        <div className="setup-heading"><span className="setup-step-icon channel-icon"><MessageCircle size={23}/></span><div><small>第 3 步，共 4 步</small><h2 id="scimate-box-setup-title">{activeChannel?`配置${activeChannel.name}`:"选择通信通道"}</h2><p>{activeChannel?"填写该通道的应用凭证，验证成功后再配置其他通道。":"每次选择并配置一个通道，连接成功后可继续添加其他通道。"}</p></div></div>
+        <div className="setup-heading"><span className="setup-step-icon channel-icon"><MessageCircle size={23}/></span><div><small>{activeChannel?"通道配置":"消息与协作"}</small><h2 id="scimate-box-setup-title">{activeChannel?`配置${activeChannel.name}`:"选择通信通道"}</h2><p>{activeChannel?"填写该通道的应用凭证，验证成功后再配置其他通道。":"每次选择并配置一个通道，连接成功后可继续添加其他通道。"}</p></div></div>
         <div className="channel-privacy"><ShieldCheck size={16}/><span>授权由对应平台完成，账号凭证只保存在 {deviceName||"SCIMate 盒子"} 中。</span></div>
         {!activeChannel?<><div className="channel-grid">{channels.map(channel=>{const connected=selectedChannels.includes(channel.id);return <button type="button" className={`setup-channel-card ${connected?"selected":""}`} key={channel.id} onClick={()=>setConfiguringChannel(channel.id)}><span className="channel-logo"><img src={channel.logo} alt=""/></span><span className="channel-copy"><span><strong>{channel.name}</strong>{channel.recommended&&<em>推荐</em>}</span><small>{channel.description}</small></span><span className="channel-select-state">{connected?<><Check size={14}/>已连接</>:<>配置<ChevronRight size={14}/></>}</span></button>})}</div><div className="setup-channel-summary"><span><strong>{selectedChannels.length}</strong> 个通道已连接</span><small>点击任一通道进入独立配置</small></div><div className="setup-footer-actions"><Button variant="outline" onClick={()=>{if(!selectedChannels.length)onChannelsChange([]);onStageChange("complete")}}>{selectedChannels.length?"稍后继续配置":"暂不连接"}</Button><Button onClick={finishChannels}>{selectedChannels.length?"完成通道设置":"跳过并继续"}<ArrowRight/></Button></div></>:<div className="single-channel-setup"><div className="single-channel-profile"><span className="channel-logo"><img src={activeChannel.logo} alt=""/></span><div><strong>{activeChannel.name}</strong><p>{activeChannel.description}</p></div>{selectedChannels.includes(activeChannel.id)&&<span className="device-status-tag"><Check size={13}/>已连接</span>}</div><div className="channel-credential-list"><div className="credential-heading"><strong>应用连接凭证</strong><small>请从 {activeChannel.name} 开放平台获取</small></div><div className="channel-credential single"><label><span>AppID</span><Input value={activeCredential.appId} onChange={event=>updateCredential(activeChannel.id,"appId",event.target.value)} placeholder={`请输入${activeChannel.name} AppID`} autoComplete="off"/></label><label><span>AppSecret</span><div className="setup-input-row"><Input type="password" value={activeCredential.appSecret} onChange={event=>updateCredential(activeChannel.id,"appSecret",event.target.value)} placeholder={`请输入${activeChannel.name} AppSecret`} autoComplete="new-password"/><LockKeyhole className="input-decoration" size={15}/></div></label></div></div><div className="setup-footer-actions"><Button variant="outline" onClick={()=>setConfiguringChannel(null)}>取消</Button><Button onClick={connectChannel} disabled={!activeCredentialValid}>验证并连接 {activeChannel.name}<ArrowRight/></Button></div></div>}
       </section>}
