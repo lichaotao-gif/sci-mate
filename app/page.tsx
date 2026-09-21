@@ -188,13 +188,7 @@ function ResearchWorkspace() {
     {page==="overview"&&isDemo&&<div className="overview-dashboard">
       <section className="panel research-command-center">
         <div className="command-ambient command-ambient-one"/><div className="command-ambient command-ambient-two"/>
-        <header className="command-header"><div><div className="command-eyebrow"><span><i/>SCIMate Research Command</span><em>Agent 24/7 运行中</em></div><h2>{project}</h2><p>{goal}</p><div className="command-topic-tags"><span>推理机制</span><span>过程监督</span><span>自我纠错</span><button onClick={()=>openModal("direction")}>研究范围 <ArrowUpRight size={13}/></button></div></div><div className="command-stage-index"><small>当前阶段</small><strong>02<em>/05</em></strong><span>文献与证据</span></div></header>
-
-        <section className="command-time-strip" aria-label="项目研究时间">
-          <div className="project-clock"><span className="project-clock-face"><Clock3 size={22}/><i/></span><span><small>Agent 已持续研究</small><strong>12天 08小时</strong></span></div>
-          <div className="project-time-progress"><div><span>项目时间进度</span><em>预计共 15 天</em></div><span className="project-time-track"><i style={{width:"82%"}}/></span><small>基于当前任务量、文献规模与模型队列动态估算</small></div>
-          <div className="project-time-stat"><small>预计还需</small><strong>2天 16小时</strong><span>预计 9月23日 18:00 完成</span></div>
-        </section>
+        <header className="command-header"><div><div className="command-eyebrow"><span><i/>SCIMate Research Command</span><em>Agent 24/7 运行中</em></div><h2>{project}</h2><p>{goal}</p><div className="command-topic-tags"><span>推理机制</span><span>过程监督</span><span>自我纠错</span><button onClick={()=>openModal("direction")}>研究范围 <ArrowUpRight size={13}/></button></div></div><aside className="command-time-card" aria-label="项目研究时间"><header><span><Clock3 size={15}/>项目研究时间</span><em>82%</em></header><div className="command-time-values"><span><small>Agent 已运行</small><strong>12天 08小时</strong></span><i/><span><small>预计还需</small><strong>2天 16小时</strong></span></div><span className="command-time-track"><i style={{width:"82%"}}/></span><footer><span>预计共 15 天</span><strong>9月23日 18:00 完成</strong></footer></aside></header>
 
         <div className="command-stage-track">{[{name:"明确问题",state:"done",meta:"AI 已完成"},{name:"文献与证据",state:"current",meta:"进行中 68%"},{name:"研究方案",state:"waiting",meta:"预计 09-23"},{name:"实验验证",state:"human",meta:"需要人工"},{name:"研究成果",state:"waiting",meta:"等待验证"}].map((item,index)=><div className={`command-stage ${item.state}`} key={item.name}><span>{item.state==="done"?<Check size={13}/>:index+1}</span><div><strong>{item.name}</strong><small>{item.meta}</small></div></div>)}</div>
 
