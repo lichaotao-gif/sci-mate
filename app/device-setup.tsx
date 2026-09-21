@@ -84,7 +84,8 @@ export function SCIMateBoxSetup({stage,onStageChange,onFinish,authenticated,acco
 
   return <div className={`scimate-box-setup ${stage==="auth"?"auth-layout":"modal-layout"}`} role="dialog" aria-modal="true" aria-labelledby="scimate-box-setup-title">
     <div className="setup-ambient setup-ambient-one"/><div className="setup-ambient setup-ambient-two"/>
-    {stage==="auth"&&<aside className="setup-story" style={{"--login-bg":`url("${assetPath("/scimate-login-research-bg.png")}")`} as React.CSSProperties}>
+    {stage==="auth"&&<aside className="setup-story">
+      <img className="setup-story-background" src="/scimate-login-research-bg.png" alt="" onError={event=>{const image=event.currentTarget;if(image.dataset.fallback==="subpath")return;image.dataset.fallback="subpath";image.src="/sci-mate/scimate-login-research-bg.png"}}/>
       <div className="setup-brand"><img src={assetPath("/scimate-brand-mark.png")} alt=""/><span>SCI<strong>Mate</strong></span></div>
       <div className="setup-story-copy"><span className="setup-kicker"><Radio size={15}/>SCIMATE BOX · RESEARCH NODE</span><h1>让科研 Agent<br/>真正持续运行</h1><p>SCIMate 盒子承载本地知识、自动任务与 24 小时科研雷达。绑定后，你可以从网页或常用通信工具随时调用它。</p></div>
       <div className="setup-security"><ShieldCheck size={17}/><span><strong>数据由盒子本地处理</strong><small>通道凭证保存在设备中，可随时解除绑定</small></span></div>
