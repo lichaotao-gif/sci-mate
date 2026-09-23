@@ -136,6 +136,64 @@ const paperGraphClusters=[
  {name:"自我纠错",tone:"correction",topics:["自我纠错"],y:645}
 ] as const;
 
+function CoolPaperGraph({papers,openPaper}:{papers:Paper[];openPaper:(id:number)=>void}){
+ const graphPapers=papers.filter(paper=>paper.saved);
+ const shellRef=useRef<HTMLDivElement>(null);
+ const [selectedPaper,setSelectedPaper]=useState<number|null>(graphPapers[0]?.id??null);
+ const [selectedRelation,setSelectedRelation]=useState<string|null>(null);
+ const [scale,setScale]=useState(1);
+ const [fullscreen,setFullscreen]=useState(false);
+ const clusterFor=(paper:Paper)=>paperGraphClusters.find(cluster=>cluster.topics.includes(paper.topic as never))||paperGraphClusters[0];
+ const clusterCenters=[{x:600,y:155},{x:990,y:390},{x:210,y:390},{x:600,y:625}];
+ const positions:Record<number,{x:number;y:number}>={};
+ paperGraphClusters.forEach((cluster,clusterIndex)=>{
+  const group=graphPapers.filter(paper=>clusterFor(paper).name===cluster.name).sort((a,b)=>Number(a.year)-Number(b.year)||a.id-b.id);
+  const center=clusterCenters[clusterIndex];
+  const offsets=[{x:0,y:-82},{x:-100,y:70},{x:100,y:70},{x:0,y:118}];
+  group.forEach((paper,index)=>{const offset=offsets[index]||{x:(index%2?1:-1)*125,y:118+Math.floor(index/2)*70};positions[paper.id]={x:center.x+offset.x,y:center.y+offset.y}});
+ });
+ const relationSpecs:Array<[number,number,string]>=[
+  [8,4,"推理轨迹到思维链"],[4,7,"提示与问题分解"],[2,3,"多路径采样与搜索"],[3,9,"搜索与推理时计算"],
+  [10,1,"过程反馈到过程奖励"],[1,11,"步骤级验证器"],[5,6,"反思与记忆机制"],[6,12,"外部反馈增强"],
+  [4,2,"思维链到路径聚合"],[2,1,"结果稳定到步骤验证"],[7,3,"问题分解到搜索规划"],[8,10,"推理轨迹监督"],
+  [10,5,"反馈信号驱动修正"],[11,12,"验证器与工具反馈"],[3,12,"搜索规划与工具批判"]
+ ];
+ const available=new Set(graphPapers.map(paper=>paper.id));
+ const relations:PaperRelation[]=relationSpecs.filter(([source,target])=>available.has(source)&&available.has(target)).map(([source,target,knowledge])=>{
+  const sourcePaper=graphPapers.find(paper=>paper.id===source)!;const targetPaper=graphPapers.find(paper=>paper.id===target)!;
+  const kind=clusterFor(sourcePaper).name===clusterFor(targetPaper).name?"within":"cross";
+  return{id:`${source}-${target}`,source,target,knowledge,kind,description:`两项工作在“${knowledge}”上形成研究承接。前者提供问题设定或方法基础，后者进一步扩展验证方式、反馈来源或推理预算。`,strength:80+((source+target)*7)%16};
+ });
+ const activePaper=graphPapers.find(paper=>paper.id===selectedPaper)||null;
+ const activeRelation=relations.find(relation=>relation.id===selectedRelation)||null;
+ const relatedToPaper=activePaper?relations.filter(relation=>relation.source===activePaper.id||relation.target===activePaper.id):[];
+ const relationPapers=activeRelation?graphPapers.filter(paper=>paper.id===activeRelation.source||paper.id===activeRelation.target):[];
+ const selectPaper=(id:number)=>{setSelectedPaper(id);setSelectedRelation(null)};
+ const selectRelation=(id:string)=>{setSelectedRelation(id);setSelectedPaper(null)};
+ const toggleFullscreen=async()=>{if(!document.fullscreenElement){await shellRef.current?.requestFullscreen();setFullscreen(true)}else{await document.exitFullscreen();setFullscreen(false)}};
+ useEffect(()=>{const sync=()=>setFullscreen(Boolean(document.fullscreenElement));document.addEventListener("fullscreenchange",sync);return()=>document.removeEventListener("fullscreenchange",sync)},[]);
+ return <div ref={shellRef} className={`paper-graph-layout cool-paper-layout ${fullscreen?"is-fullscreen":""}`}>
+  <section className="panel paper-graph-canvas cool-paper-canvas">
+   <header><div><strong>论文知识星系</strong><span>四类研究簇 · 时间演进 · 跨路线知识迁移</span></div><div className="cool-graph-actions"><span className="tag green-tag">{graphPapers.length} 篇 · {relations.length} 条关联</span><div className="graph-controls"><button onClick={()=>setScale(value=>Math.max(.75,value-.1))} aria-label="缩小论文图谱"><ZoomOut size={16}/></button><button onClick={()=>setScale(value=>Math.min(1.35,value+.1))} aria-label="放大论文图谱"><ZoomIn size={16}/></button><button onClick={()=>setScale(1)} aria-label="重置论文图谱"><RotateCcw size={15}/></button><button onClick={toggleFullscreen} aria-label={fullscreen?"退出全屏":"全屏展示论文图谱"}>{fullscreen?<Minimize2 size={16}/>:<Maximize2 size={16}/>}</button></div></div></header>
+   <div className="paper-graph-stage cool-paper-stage">
+    <svg viewBox="0 0 1200 780" role="img" aria-label="科研星系式结构化论文图谱">
+     <defs><pattern id="coolPaperGrid" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M34 0H0V34" fill="none" stroke="currentColor" strokeWidth="1"/></pattern><radialGradient id="paperHub" cx="35%" cy="28%"><stop offset="0" stopColor="#8de3dc"/><stop offset=".52" stopColor="#4b7eaa"/><stop offset="1" stopColor="#233e63"/></radialGradient><filter id="coolNodeGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+     <rect className="paper-graph-grid" width="1200" height="780" fill="url(#coolPaperGrid)"/>
+     <g className="cool-paper-scene" transform={`translate(600 390) scale(${scale}) translate(-600 -390)`}>
+      <circle className="galaxy-orbit orbit-a" cx="600" cy="390" r="285"/><circle className="galaxy-orbit orbit-b" cx="600" cy="390" r="185"/>
+      {paperGraphClusters.map((cluster,index)=>{const center=clusterCenters[index];const count=graphPapers.filter(paper=>clusterFor(paper).name===cluster.name).length;return <g className={`galaxy-cluster ${cluster.tone}`} key={cluster.name}><line className="cluster-spoke" x1="600" y1="390" x2={center.x} y2={center.y}/><circle className="cluster-halo" cx={center.x} cy={center.y} r="137"/><circle className="cluster-core" cx={center.x} cy={center.y} r="43"/><text className="galaxy-cluster-title" x={center.x} y={center.y+4} textAnchor="middle">{cluster.name}</text><text className="galaxy-cluster-count" x={center.x} y={center.y+20} textAnchor="middle">{count} PAPERS</text></g>})}
+      {relations.map(relation=>{const source=positions[relation.source],target=positions[relation.target];if(!source||!target)return null;const bend=relation.kind==="cross"?42:18;const middle={x:(source.x+target.x)/2,y:(source.y+target.y)/2};const control={x:middle.x+(source.y-target.y)/8,y:middle.y+(target.x-source.x)/bend};const selected=selectedRelation===relation.id;return <g className={`paper-relation galaxy-relation ${relation.kind||"within"} ${selected?"selected":""}`} key={relation.id} role="button" tabIndex={0} aria-label={`查看关联：${relation.knowledge}`} onClick={()=>selectRelation(relation.id)} onKeyDown={event=>{if(event.key==="Enter"||event.key===" ")selectRelation(relation.id)}}><path className="paper-relation-hit" d={`M${source.x} ${source.y} Q${control.x} ${control.y} ${target.x} ${target.y}`}/><path className="paper-relation-line" d={`M${source.x} ${source.y} Q${control.x} ${control.y} ${target.x} ${target.y}`}/><circle className="paper-relation-point" cx={middle.x} cy={middle.y} r={selected?6:3.5}/><g className="paper-relation-label" transform={`translate(${middle.x} ${middle.y-13})`}><rect x="-58" y="-11" width="116" height="22" rx="11"/><text textAnchor="middle" y="4">{relation.knowledge.length>10?`${relation.knowledge.slice(0,10)}…`:relation.knowledge}</text></g></g>})}
+      <g className="paper-galaxy-hub"><circle cx="600" cy="390" r="72" fill="url(#paperHub)"/><circle className="hub-pulse" cx="600" cy="390" r="87"/><Sparkles x="584" y="350" width="32" height="32"/><text x="600" y="399" textAnchor="middle">可靠推理</text><text className="hub-subtitle" x="600" y="418" textAnchor="middle">RESEARCH CORE</text></g>
+      {graphPapers.map(paper=>{const point=positions[paper.id];if(!point)return null;const selected=selectedPaper===paper.id;const cluster=clusterFor(paper);return <g className={`paper-graph-node galaxy-node ${cluster.tone} ${selected?"selected":""}`} key={paper.id} transform={`translate(${point.x} ${point.y})`} role="button" tabIndex={0} aria-label={`查看论文：${paper.title}`} onClick={()=>selectPaper(paper.id)} onKeyDown={event=>{if(event.key==="Enter"||event.key===" ")selectPaper(paper.id)}}><rect x="-70" y="-37" width="140" height="74" rx="14"/><circle cx="-48" cy="-14" r="10"/><text className="paper-year" x="-48" y="-10" textAnchor="middle">{paper.year.slice(-2)}</text><text className="paper-node-title" x="-31" y="-12">{paper.title.length>15?`${paper.title.slice(0,14)}…`:paper.title}</text><text className="paper-node-meta" x="-55" y="12">{paper.venue} · {paper.year}</text><text className="paper-node-topic" x="-55" y="28">{paper.topic}</text></g>})}
+     </g>
+    </svg>
+    <div className="paper-graph-legend galaxy-legend"><span><i className="foundation"/>基础推理</span><span><i className="search"/>多路径与搜索</span><span><i className="verification"/>过程验证</span><span><i className="correction"/>自我纠错</span><em>点击连线查看知识迁移</em></div>
+   </div>
+  </section>
+  <aside className="panel paper-graph-inspector">{activeRelation?<><div className="paper-inspector-kicker"><GitBranch size={15}/>关联知识点</div><span className="relation-strength">关联强度 {activeRelation.strength}%</span><h3>{activeRelation.knowledge}</h3><div className="relation-paper-pair">{relationPapers.map((paper,index)=><div key={paper.id}><button onClick={()=>selectPaper(paper.id)}>{paper.title}</button><small>{paper.venue} · {paper.year}</small>{index===0&&<i/>}</div>)}</div><section className="relation-explanation"><span>知识迁移说明</span><p>{activeRelation.description}</p></section><div className="paper-inspector-note"><Sparkles size={14}/><span>关联由 Agent 提取，关键结论仍需回到论文原文核查。</span></div></>:activePaper?<><div className="paper-inspector-kicker"><BookOpen size={15}/>论文节点 · {clusterFor(activePaper).name}</div><span className={`paper-source source-${activePaper.source}`}>{activePaper.sourceDetail||"项目文献"}</span><h3>{activePaper.title}</h3><p className="paper-inspector-meta">{activePaper.venue} · {activePaper.year} · {activePaper.topic}</p><section className="paper-inspector-method"><span>核心方法</span><strong>{activePaper.method}</strong><p>{activePaper.summary}</p></section><section className="paper-related-list"><header><span>关联论文与知识点</span><em>{relatedToPaper.length}</em></header>{relatedToPaper.map(relation=>{const otherId=relation.source===activePaper.id?relation.target:relation.source;const other=graphPapers.find(paper=>paper.id===otherId);return <button key={relation.id} onClick={()=>selectRelation(relation.id)}><span><strong>{relation.knowledge}</strong><small>{other?.title}</small></span><ChevronRight size={14}/></button>})}</section><Button variant="outline" onClick={()=>openPaper(activePaper.id)}><BookOpen/>查看论文详情</Button></>:null}</aside>
+ </div>;
+}
+
 function StructuredPaperGraph({papers,openPaper}:{papers:Paper[];openPaper:(id:number)=>void}){
  const graphPapers=papers.filter(paper=>paper.saved);
  const [selectedPaper,setSelectedPaper]=useState<number|null>(graphPapers[0]?.id??null);
@@ -171,6 +229,7 @@ function PaperGraph({papers,openPaper}:{papers:Paper[];openPaper:(id:number)=>vo
  const graphPapers=papers.filter(paper=>paper.saved);
  const [selectedPaper,setSelectedPaper]=useState<number|null>(graphPapers[0]?.id??null);
  const [selectedRelation,setSelectedRelation]=useState<string|null>(null);
+ if(graphPapers.length>=10)return <CoolPaperGraph papers={papers} openPaper={openPaper}/>;
  if(graphPapers.length>=8)return <StructuredPaperGraph papers={papers} openPaper={openPaper}/>;
  const explicitRelations:Record<string,string>={"1-2":"可靠性提升机制","1-3":"推理步骤与搜索验证","1-4":"推理过程可验证性","2-3":"多路径采样与搜索","2-4":"思维链稳定性","3-4":"显式推理与规划","5-6":"反馈驱动自我纠错"};
  const relationKnowledge=(a:Paper,b:Paper)=>explicitRelations[[a.id,b.id].sort((x,y)=>x-y).join("-")]||(a.topic===b.topic?a.topic:`${a.topic} × ${b.topic}`);
