@@ -20,7 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{__html:`(()=>{try{const s=localStorage.getItem('scimate-theme');const t=s==='light'||s==='dark'?s:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch{}})()`}}/></head>
       <body className="antialiased">{children}</body>
     </html>
   );
